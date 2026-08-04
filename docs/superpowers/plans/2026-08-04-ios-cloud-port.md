@@ -4,7 +4,7 @@
 
 **Goal:** Add a buildable iOS 15+ Capacitor app that reuses the existing NewsNook React UI, supports cloud translation, photos and sharing, and provides native brightness and media-volume controls.
 
-**Architecture:** Keep the existing Web and Android implementations unchanged and add Capacitor's Swift Package Manager iOS platform beside them. The bundled React app remains the product layer; a local Swift Capacitor plugin supplies only the two iOS-specific media controls, while official Capacitor plugins continue to handle HTTP, preferences, files, sharing, browser presentation, status bar, and photos.
+**Architecture:** Keep the existing Web and Android implementations unchanged and add Capacitor's Swift Package Manager iOS platform beside them. The bundled React app remains the product layer; a local Swift Capacitor plugin supplies only the two iOS-specific media controls. Official Capacitor plugins continue to handle HTTP, preferences, files, sharing, browser presentation and the status bar, while `@capacitor-community/media` handles photo-library saves.
 
 **Tech Stack:** React 19, TypeScript 6, Vite 8, Capacitor 8.4.2, Swift, Swift Package Manager, UIKit, MediaPlayer, AVFAudio, Xcode
 
@@ -25,6 +25,7 @@
 - `ios/App/App/DeviceMediaControlsPlugin.swift`: iOS brightness and volume Capacitor plugin.
 - `ios/App/App/MainViewController.swift`: register the local plugin and apply the dark WebView background.
 - `ios/App/App/Info.plist`: photo-use descriptions and domain-scoped ATS exceptions.
+- `ios/App/App/PrivacyInfo.xcprivacy`: Required Reason API declarations for Filesystem and Preferences.
 - `ios/App/App/Base.lproj/Main.storyboard`: use `MainViewController` as the Capacitor root.
 - `ios/App/App/Base.lproj/LaunchScreen.storyboard`: use the NewsNook dark launch background.
 - `ios/App/App/Assets.xcassets`: generated app icon and splash images.
@@ -429,13 +430,14 @@ Run:
 
 ```bash
 plutil -lint ios/App/App/Info.plist
-plutil -lint ios/App/App/Base.lproj/LaunchScreen.storyboard
+xmllint --noout ios/App/App/Base.lproj/LaunchScreen.storyboard
+xcrun ibtool --errors --warnings --notices ios/App/App/Base.lproj/LaunchScreen.storyboard
 sips -g pixelWidth -g pixelHeight ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png
 sips -g pixelWidth -g pixelHeight ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png
 npm run test:ios-project
 ```
 
-Expected: both plist checks report `OK`; `sips` reports `1024 x 1024` and `2732 x 2732`; the test prints `ios-project: ok`.
+Expected: the plist reports `OK`; `xmllint` and `ibtool` report no errors; `sips` reports `1024 x 1024` and `2732 x 2732`; the test prints `ios-project: ok`.
 
 - [ ] **Step 8: Commit target configuration and assets**
 
@@ -822,12 +824,14 @@ npm run lint
 npm run build
 npm run ios:sync
 plutil -lint ios/App/App/Info.plist
-plutil -lint ios/App/App/Base.lproj/Main.storyboard
-plutil -lint ios/App/App/Base.lproj/LaunchScreen.storyboard
+xmllint --noout ios/App/App/Base.lproj/Main.storyboard
+xmllint --noout ios/App/App/Base.lproj/LaunchScreen.storyboard
+xcrun ibtool --errors --warnings --notices ios/App/App/Base.lproj/Main.storyboard
+xcrun ibtool --errors --warnings --notices ios/App/App/Base.lproj/LaunchScreen.storyboard
 git diff --check
 ```
 
-Expected: lint and build exit 0; Capacitor sync completes; all three plist/storyboard files report `OK`; `git diff --check` prints nothing.
+Expected: lint and build exit 0; Capacitor sync completes; the plist reports `OK`; both storyboards pass `xmllint` and `ibtool`; `git diff --check` prints nothing.
 
 - [ ] **Step 5: Run the final unsigned simulator build**
 

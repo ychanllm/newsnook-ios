@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 
 const pbx = readFileSync('ios/App/App.xcodeproj/project.pbxproj', 'utf8')
@@ -17,10 +18,40 @@ assert.match(plist, /<key>NSPhotoLibraryUsageDescription<\/key>/)
 assert.match(plist, /<key>NSPhotoLibraryAddUsageDescription<\/key>/)
 assert.match(plist, /<key>NSAppTransportSecurity<\/key>/)
 assert.doesNotMatch(plist, /<key>NSAllowsArbitraryLoads<\/key>/)
+assert.match(pbx, /PrivacyInfo\.xcprivacy in Resources/)
 
-for (const domain of ['163.com', '126.net', '126.com', 'netease.com']) {
-  const escapedDomain = domain.replaceAll('.', '\\.')
-  assert.match(plist, new RegExp(`<key>${escapedDomain}<\\/key>`))
+const privacyJson = JSON.parse(
+  execFileSync('plutil', ['-convert', 'json', '-o', '-', 'ios/App/App/PrivacyInfo.xcprivacy'], {
+    encoding: 'utf8',
+  }),
+)
+assert.deepEqual(privacyJson.NSPrivacyAccessedAPITypes, [
+  {
+    NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryFileTimestamp',
+    NSPrivacyAccessedAPITypeReasons: ['C617.1'],
+  },
+  {
+    NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryUserDefaults',
+    NSPrivacyAccessedAPITypeReasons: ['CA92.1'],
+  },
+])
+
+const plistJson = JSON.parse(
+  execFileSync('plutil', ['-convert', 'json', '-o', '-', 'ios/App/App/Info.plist'], {
+    encoding: 'utf8',
+  }),
+)
+const ats = plistJson.NSAppTransportSecurity
+assert.equal(ats.NSAllowsArbitraryLoads, undefined)
+assert.deepEqual(
+  Object.keys(ats.NSExceptionDomains).sort(),
+  ['126.com', '126.net', '163.com', 'netease.com'],
+)
+for (const exception of Object.values(ats.NSExceptionDomains)) {
+  assert.deepEqual(exception, {
+    NSExceptionAllowsInsecureHTTPLoads: true,
+    NSIncludesSubdomains: true,
+  })
 }
 
 assert.match(launch, /red="0\.0549" green="0\.0588" blue="0\.0706"/)
@@ -35,6 +66,27 @@ for (const file of [
 ]) {
   assert.equal(existsSync(file), true, `missing iOS image: ${file}`)
   assert.ok(statSync(file).size > 10_000, `unexpectedly small iOS image: ${file}`)
+}
+
+const iconInfo = execFileSync(
+  'sips',
+  ['-g', 'pixelWidth', '-g', 'pixelHeight', '-g', 'hasAlpha', 'ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png'],
+  { encoding: 'utf8' },
+)
+assert.match(iconInfo, /pixelWidth: 1024/)
+assert.match(iconInfo, /pixelHeight: 1024/)
+assert.match(iconInfo, /hasAlpha: no/)
+
+for (const file of [
+  'ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png',
+  'ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-1.png',
+  'ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-2.png',
+]) {
+  const info = execFileSync('sips', ['-g', 'pixelWidth', '-g', 'pixelHeight', file], {
+    encoding: 'utf8',
+  })
+  assert.match(info, /pixelWidth: 2732/)
+  assert.match(info, /pixelHeight: 2732/)
 }
 
 console.log('ios-project: ok')

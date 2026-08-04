@@ -83,7 +83,7 @@ API Key 和端点继续保存在本机，应用通过 Capacitor 原生 HTTP 直�
 
 亮度使用 `UIScreen.main.brightness`。插件在首次修改前记录原始亮度，`clearBrightness` 和退出全屏时恢复记录值。
 
-媒体音量通过 `MPVolumeView` 内部的系统音量滑块读取和调整，返回实际生效的 0 到 1 值；不调用私有 API。插件不可用或调用失败时，Web 层沿用现有降级逻辑：亮度使用视频蒙层模拟，音量修改当前 `HTMLVideoElement`。
+媒体音量通过公开的 `MPVolumeView` 控件尝试读取和调整，返回实际生效的 0 到 1 值；不调用私有 API。iOS 没有公开的直接系统音量 setter，因此该路径按真机 best-effort 处理。插件不可用、控件层级不可调或调用失败时，Web 层沿用现有降级逻辑：亮度使用视频蒙层模拟，音量修改当前 `HTMLVideoElement`。
 
 ## 文件、照片与分享
 
@@ -113,9 +113,9 @@ iOS 使用 Capacitor 默认 App 生命周期。现有页面内返回逻辑和边
 
 ## 构建兼容性
 
-仓库当前锁定 Capacitor 8.4.2，本机环境是 Xcode 16.4 与 Swift 6.1.2。实施阶段先用锁定版本生成和编译 iOS 工程。
+仓库锁定 Capacitor 8.4.2；官方开发基线是 Node.js 22+ 与 Xcode 26+。交付不为兼容旧工具链而降级 Capacitor 依赖族。
 
-如果 Capacitor 8.4.2 的实际 iOS 工具链要求高于 Xcode 16.4，则交付仍保持 Capacitor 8.4.2，并在构建说明中记录所需 Xcode 版本。除非用户另行确认，不为适配旧 Xcode 而降级整个 Capacitor 依赖族。
+当前机器的 Xcode 16.4 / iOS Simulator SDK 18.5 也已完成一次无签名 Debug 编译，可用于本地验证当前源码；后续依赖升级、归档和 App Store 提交仍以 Capacitor 官方的 Xcode 26+ 基线为准。
 
 ## 验证
 
