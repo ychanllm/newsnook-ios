@@ -29,6 +29,7 @@
     "test:google-news-parse": "npx tsx scripts/google-news-parse.test.ts",
     "test:ios-platform": "node scripts/ios-platform.test.mjs",
     "test:native-platform": "rolldown scripts/native-platform.test.ts --platform=node --format=esm --file=node_modules/.cache/newsnook/native-platform.test.mjs && node node_modules/.cache/newsnook/native-platform.test.mjs",
+    "test:ios-project": "node scripts/ios-project.test.mjs",
     "preview": "vite preview",
     "assets": "node scripts/generate-android-assets.mjs",
     "android:sync": "npm run build && node scripts/android-cap.mjs sync android",
@@ -42,7 +43,8 @@
     "android:aab": "npm run android:sync && node scripts/android-build.mjs aab",
     "android:aab:cloud": "npm run android:sync && node scripts/android-build.mjs aab cloud",
     "android:aab:local": "npm run android:sync && node scripts/android-build.mjs aab local",
-    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:assets": "node scripts/generate-ios-assets.mjs",
+    "ios:sync": "npm run ios:assets && npm run build && npx cap sync ios",
     "ios:open": "npm run ios:sync && npx cap open ios",
     "ios:run": "npm run ios:sync && npx cap run ios --no-sync"
   },
