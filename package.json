@@ -30,6 +30,8 @@
     "test:ios-platform": "node scripts/ios-platform.test.mjs",
     "test:native-platform": "rolldown scripts/native-platform.test.ts --platform=node --format=esm --file=node_modules/.cache/newsnook/native-platform.test.mjs && node node_modules/.cache/newsnook/native-platform.test.mjs",
     "test:ios-project": "node scripts/ios-project.test.mjs",
+    "test:ios-native-plugin": "node scripts/ios-native-plugin.test.mjs",
+    "test:device-media-controls": "rolldown scripts/device-media-controls.test.ts --platform=node --format=esm --file=node_modules/.cache/newsnook/device-media-controls.test.mjs && node node_modules/.cache/newsnook/device-media-controls.test.mjs",
     "preview": "vite preview",
     "assets": "node scripts/generate-android-assets.mjs",
     "android:sync": "npm run build && node scripts/android-cap.mjs sync android",
