@@ -26,7 +26,7 @@ Web 层已使用 Capacitor 的 Preferences、Filesystem、Share、Browser、Stat
 
 ## 工程结构
 
-现有仓库继续作为唯一源码仓库，保留 `src/`、`android/` 和 Web 构建流程。新增 Capacitor 生成的 `ios/` 工程，入口为 `ios/App/App.xcworkspace`。
+现有仓库继续作为唯一源码仓库，保留 `src/`、`android/` 和 Web 构建流程。新增 Capacitor 生成的 Swift Package Manager iOS 工程，入口为 `ios/App/App.xcodeproj`。采用 Capacitor 8 默认的 Swift Package Manager 模板，避免新增 CocoaPods 环境依赖。
 
 工程使用以下标识与平台基线：
 
@@ -129,7 +129,7 @@ iOS 使用 Capacitor 默认 App 生命周期。现有页面内返回逻辑和边
 
 ## 交付物
 
-- 可打开的 `ios/App/App.xcworkspace`
+- 可打开的 `ios/App/App.xcodeproj`
 - Bundle ID 为 `com.aizeek.newsnook.ios` 的 iOS target
 - Swift `DeviceMediaControls` 插件
 - iOS 图标、Launch Screen、权限说明和受限 ATS 配置
