@@ -5,6 +5,7 @@ import App from './App'
 import { StartupSplash, type SplashMode } from './components/StartupSplash'
 import { initCompositorWakeListener } from './lib/compositorWake'
 import { applyNativeChrome } from './lib/nativeChrome'
+import { shouldUseStartupSplash } from './lib/nativePlatform'
 import {
   hasSeenStartupSplash,
   hydrateNativeStorage,
@@ -14,7 +15,10 @@ import {
 import { applyTheme, THEME_SURFACE } from './lib/theme'
 import { normalizePreferences } from './sources/preferences'
 
-const SPLASH_ENABLED = Capacitor.getPlatform() === 'android' || import.meta.env.DEV
+const SPLASH_ENABLED = shouldUseStartupSplash(
+  Capacitor.getPlatform(),
+  import.meta.env.DEV,
+)
 /** 启动页淡出时长，与 StartupSplash.css 的 --splash-exit 保持一致 */
 const SPLASH_EXIT_MS = 320
 

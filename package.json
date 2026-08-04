@@ -28,6 +28,7 @@
     "test:google-news-decode": "npx tsx scripts/google-news-decode.test.ts",
     "test:google-news-parse": "npx tsx scripts/google-news-parse.test.ts",
     "test:ios-platform": "node scripts/ios-platform.test.mjs",
+    "test:native-platform": "rolldown scripts/native-platform.test.ts --platform=node --format=esm --file=node_modules/.cache/newsnook/native-platform.test.mjs && node node_modules/.cache/newsnook/native-platform.test.mjs",
     "preview": "vite preview",
     "assets": "node scripts/generate-android-assets.mjs",
     "android:sync": "npm run build && node scripts/android-cap.mjs sync android",
