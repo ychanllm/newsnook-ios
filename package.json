@@ -27,6 +27,7 @@
     "test:layout-presets": "npx tsx scripts/layout-presets.test.ts",
     "test:google-news-decode": "npx tsx scripts/google-news-decode.test.ts",
     "test:google-news-parse": "npx tsx scripts/google-news-parse.test.ts",
+    "test:ios-platform": "node scripts/ios-platform.test.mjs",
     "preview": "vite preview",
     "assets": "node scripts/generate-android-assets.mjs",
     "android:sync": "npm run build && node scripts/android-cap.mjs sync android",
@@ -39,7 +40,10 @@
     "android:apk:local": "npm run android:sync && node scripts/android-build.mjs apk local",
     "android:aab": "npm run android:sync && node scripts/android-build.mjs aab",
     "android:aab:cloud": "npm run android:sync && node scripts/android-build.mjs aab cloud",
-    "android:aab:local": "npm run android:sync && node scripts/android-build.mjs aab local"
+    "android:aab:local": "npm run android:sync && node scripts/android-build.mjs aab local",
+    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:open": "npm run ios:sync && npx cap open ios",
+    "ios:run": "npm run ios:sync && npx cap run ios --no-sync"
   },
   "dependencies": {
     "@capacitor-community/media": "^9.1.0",
@@ -48,6 +52,7 @@
     "@capacitor/browser": "8.0.1",
     "@capacitor/core": "8.4.2",
     "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/ios": "8.4.2",
     "@capacitor/preferences": "8.0.1",
     "@capacitor/share": "^8.0.1",
     "@capacitor/status-bar": "^8.0.3",
