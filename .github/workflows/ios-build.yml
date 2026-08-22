@@ -1,1 +1,60 @@
+name: iOS Unsigned IPA
 
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      # 1. 拉取 iOS 外壳工程（本仓库）
+      - uses: actions/checkout@v4
+
+      # 2. 拉取 t59688 最新版 Web 代码到 web-latest 目录
+      - uses: actions/checkout@v4
+        with:
+          repository: t59688/newsnook
+          path: web-latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 3. 安装外壳依赖（提供 Capacitor CLI 等）
+      - name: Install shell dependencies
+        run: npm ci --registry=https://registry.npmjs.org
+
+      # 4. 编译最新版网页
+      - name: Build latest web app
+        run: |
+          cd web-latest
+          npm ci --registry=https://registry.npmjs.org
+          npm run build
+
+      # 5. 用最新网页产物替换外壳里的旧版
+      - name: Inject latest web build into iOS project
+        run: |
+          rm -rf ios/App/App/public
+          cp -r web-latest/dist ios/App/App/public
+
+      # 6. 无签名编译
+      - name: Build unsigned app
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj \
+            -scheme App -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      # 7. 打包 IPA 并上传
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          cp -r "build/Build/Products/Release-iphoneos/App.app" Payload/
+          zip -r NewsNook-unsigned.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NewsNook-unsigned-ipa
+          path: NewsNook-unsigned.ipa
