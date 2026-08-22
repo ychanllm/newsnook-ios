@@ -20,9 +20,11 @@ jobs:
         with:
           node-version: 22
 
-      # 3. 安装外壳依赖（提供 Capacitor CLI 等）
-      - name: Install shell dependencies
-        run: npm ci --registry=https://registry.npmjs.org
+      # 3. 安装外壳依赖并执行 cap sync（生成 config.xml 等必需文件）
+      - name: Install shell deps and cap sync
+        run: |
+          npm ci --registry=https://registry.npmjs.org
+          npm run ios:sync
 
       # 4. 编译最新版网页
       - name: Build latest web app
@@ -31,7 +33,7 @@ jobs:
           npm ci --registry=https://registry.npmjs.org
           npm run build
 
-      # 5. 用最新网页产物替换外壳里的旧版
+      # 5. 用最新网页产物覆盖外壳里的旧版
       - name: Inject latest web build into iOS project
         run: |
           rm -rf ios/App/App/public
